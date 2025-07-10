@@ -13,7 +13,8 @@ resource "azurerm_linux_virtual_machine" "yoong-vm" {
 
   admin_ssh_key {
     username   = "adminuser"
-    public_key = file("./.ssh/azurekey.pub")
+    //public_key = file("./.ssh/azurekey.pub")
+    public_key = var.ssh_public_key
   }
 
   os_disk {

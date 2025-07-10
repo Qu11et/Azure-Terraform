@@ -54,8 +54,8 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan
+        run: terraform plan -var "ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}"
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var "ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}"
