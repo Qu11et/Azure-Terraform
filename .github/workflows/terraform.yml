@@ -1,0 +1,56 @@
+name: "Deploy Azure Infrastructure with Terraform"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: "Terraform on Azure"
+    runs-on: ubuntu-latest
+
+    # Thiết lập biến môi trường sử dụng Azure Service Principal
+    env:
+      ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+      ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+      ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
+      ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
+      TF_LOG: INFO
+
+    defaults:
+      run:
+        working-directory: ./
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 2.91.0
+          terraform_wrapper: false
+
+      - name: Run Checkov scan using Docker
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            bridgecrew/checkov:latest \
+            -d /workspace
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -recursive
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve
