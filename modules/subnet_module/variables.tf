@@ -7,3 +7,8 @@ variable "virtual_network_name" {
   description = "Name of the virtual network to which the subnet belongs"
   type        = string
 }
+
+variable "security_group_id" {
+  description = "ID of the network security group to associate with the subnet"
+  type        = string
+}

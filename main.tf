@@ -25,6 +25,7 @@ module "subnet_module" {
   source               = "./modules/subnet_module"
   resource_group_name  = module.rg_module.resource_group_name
   virtual_network_name = module.vn_module.virtual_network_name
+  security_group_id   = module.sg_module.security_group_id
 }
 
 module "sg_module" {
