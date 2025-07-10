@@ -11,6 +11,11 @@ provider "azurerm" {
   features {}
 }
 
+variable "ssh_public_key" {
+  description = "SSH public key used to login to the VM"
+  type        = string
+}
+
 module "rg_module" {
   source              = "./modules/rg_module"
 }
@@ -54,4 +59,5 @@ module "vm_module" {
   resource_group_name = module.rg_module.resource_group_name
   location            = module.rg_module.resource_group_location
   network_interface_id = module.nic_module.network_interface_id
+  ssh_public_key     = var.ssh_public_key
 }
