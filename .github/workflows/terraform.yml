@@ -14,7 +14,7 @@ jobs:
     name: "Terraform on Azure"
     runs-on: ubuntu-latest
 
-    # Thiết lập biến môi trường sử dụng Azure Service Principal
+    # Thiết lập biến môi trường sử dụng Azure Service Principal////
     env:
       ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
       ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
