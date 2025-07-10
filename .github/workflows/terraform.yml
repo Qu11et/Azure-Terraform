@@ -41,7 +41,7 @@ jobs:
           docker run --rm \
             -v $(pwd):/workspace \
             bridgecrew/checkov:latest \
-            -d /workspace
+            -d /workspace \
             --skip-check CKV2_AZURE_31
 
       - name: Terraform Format
