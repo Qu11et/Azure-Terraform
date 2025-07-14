@@ -1,10 +1,3 @@
-module "avm-res-resources-resourcegroup" {
-  source   = "Azure/avm-res-resources-resourcegroup/azurerm"
-  version  = "0.2.1"
-  location = "Southeast Asia"
-  name     = "myResourceGroup"
-}
-
 module "rg_module" {
   source = "./modules/rg_module"
 }
