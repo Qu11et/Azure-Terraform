@@ -1,19 +1,12 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "=2.91.0"
-    }
-  }
-}
-
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
+module "avm-res-resources-resourcegroup" {
+  source   = "Azure/avm-res-resources-resourcegroup/azurerm"
+  version  = "0.2.1"
+  location = "Southeast Asia"
+  name     = "myResourceGroup"
 }
 
 module "rg_module" {
-  source              = "./modules/rg_module"
+  source = "./modules/rg_module"
 }
 
 module "vn_module" {
@@ -51,9 +44,9 @@ module "nic_module" {
 }
 
 module "vm_module" {
-  source              = "./modules/vm_module"
-  resource_group_name = module.rg_module.resource_group_name
-  location            = module.rg_module.resource_group_location
+  source               = "./modules/vm_module"
+  resource_group_name  = module.rg_module.resource_group_name
+  location             = module.rg_module.resource_group_location
   network_interface_id = module.nic_module.network_interface_id
-  ssh_public_key     = var.ssh_public_key
+  ssh_public_key       = var.ssh_public_key
 }
