@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "yoong-rg" {
-  name     = "yoong-resources"
-  location = "Southeast Asia"
+  name     = var.resource_group_name
+  location = var.location
   tags = {
     environment = "dev"
   }
