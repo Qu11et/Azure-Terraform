@@ -94,5 +94,5 @@ module "vm_module" {
 
   depenads_on = [
     module.nic_module
-  ] 
+  ]
 }
