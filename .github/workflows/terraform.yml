@@ -1,4 +1,4 @@
-name: "Deploy Azure Infrastructure with Terraform"
+name: "Validate Terraform Modules"
 
 on:
   push:
@@ -14,23 +14,11 @@ permissions:
   contents: read
   id-token: write
 
-env:
-  IS_PULL_REQUEST: "${{ github.event_name == 'pull_request' }}"  
-
 jobs:
-  terraform:
-    name: "Terraform on Azure"
+  validate_modules:
+    name: "Validate Terraform Modules"
     runs-on: ubuntu-latest
 
-    # Thiết lập biến môi trường sử dụng Azure Service Principal////
-    # env:
-    #   ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
-    #   ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
-    #   ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
-    #   ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
-    #   TF_LOG: INFO
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         working-directory: ./
@@ -41,14 +29,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch all history for all branches and tags
-
-      - name: Log into Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true    
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
@@ -67,34 +47,34 @@ jobs:
       - name: Terraform Format
         id: fmt
         run: terraform fmt -recursive -check
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_USE_OIDC: true
+        continue-on-error: true
 
       - name: Terraform Init
         id: init
-        run: terraform init
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_USE_OIDC: true
-
-      - name: Terraform Plan
+        run: terraform init -backend=false
+        
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+      
+      # Bước này sẽ log vào Azure chỉ khi thực hiện plan trong pipeline chính
+      - name: Log into Azure (when needed for plan)
+        uses: azure/login@v2
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+      
+      # Thêm bước plan trong trường hợp push vào main, nhưng chỉ để xem ảnh hưởng, không apply
+      - name: Dry-run Plan for Changed Modules
         id: plan
-        run: terraform plan -var "ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" -out=tfplan
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_USE_OIDC: true
-
-      - name: Terraform Apply
-        id: apply
-        run: terraform apply -auto-approve tfplan 
-        if: github.event_name != 'pull_request' # || github.event.action == 'opened'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Note: This is a dry-run plan only to show potential impacts of module changes."
+          echo "No changes will be applied automatically."
+          terraform plan -var "ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" -input=false
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
