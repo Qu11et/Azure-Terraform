@@ -16,11 +16,13 @@ variable "subnet_id" {
 variable "security_group_name" {
   description = "Name of the security group"
   type        = string
+  default     = "security-group-default"
 }
 
 variable "security_group_rule_name" {
   description = "Name of the network security rule"
   type        = string
+  default     = "security-rule-default"
 }
 
 variable "priority" {
