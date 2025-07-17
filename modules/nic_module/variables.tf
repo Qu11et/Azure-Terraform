@@ -21,5 +21,6 @@ variable "public_ip_id" {
 variable "network_interface_name" {
   description = "Name of the network interface"
   type        = string
+  default     = "nic-module-default"
 }
 
