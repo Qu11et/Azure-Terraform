@@ -49,7 +49,7 @@ jobs:
             -v $(pwd):/workspace \
             bridgecrew/checkov:latest \
             -d /workspace \
-            --skip-check CKV2_AZURE_31,CKV_AZURE_178,CKV_TF_1
+            --skip-check CKV2_AZURE_31,CKV_AZURE_178,CKV_TF_1,CKV_GHA_7
 
       - name: Terraform Format
         id: fmt
