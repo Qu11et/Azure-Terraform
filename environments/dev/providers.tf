@@ -10,7 +10,7 @@ terraform {
     resource_group_name  = "terraform-state"
     storage_account_name = "tfstate2025lkht"
     container_name       = "tfstate"
-    key                  = "terraform.tfstate"
+    key                  = "dev.terraform.tfstate"
   }
 }
 
