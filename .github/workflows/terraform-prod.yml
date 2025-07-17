@@ -1,46 +1,33 @@
-name: "Deploy Azure Infrastructure with Terraform"
+name: "Deploy Azure Prod Infrastructure with Terraform"
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'modules/**'
+      - 'environments/prod/**'
   pull_request:
     paths:
-      - 'modules/**'   
+      - 'environments/prod/**'
 
 permissions:
   contents: read
   id-token: write
 
-env:
-  IS_PULL_REQUEST: "${{ github.event_name == 'pull_request' }}"  
-
 jobs:
-  terraform:
-    name: "Terraform on Azure"
+  terraform_prod:
+    name: "Terraform Prod Deployment"
     runs-on: ubuntu-latest
-
-    # Thiết lập biến môi trường sử dụng Azure Service Principal////
-    # env:
-    #   ARM_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
-    #   ARM_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
-    #   ARM_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
-    #   ARM_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
-    #   TF_LOG: INFO
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
-        working-directory: ./
+        working-directory: ./environments/prod
         shell: bash
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for all branches and tags
+          fetch-depth: 0
 
       - name: Log into Azure
         uses: azure/login@v2
@@ -48,7 +35,7 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true    
+          enable-AzPSSession: true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
@@ -66,7 +53,7 @@ jobs:
 
       - name: Terraform Format
         id: fmt
-        run: terraform fmt -recursive -check
+        run: terraform fmt -check
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -93,8 +80,8 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -auto-approve tfplan 
-        if: github.event_name != 'pull_request' # || github.event.action == 'opened'
+        run: terraform apply -auto-approve tfplan
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
