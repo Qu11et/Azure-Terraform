@@ -20,8 +20,8 @@ module "subnet_module" {
   source               = "../../modules/subnet_module"
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.virtual_network_name
-  subnet_name          = "dev-subnet-2"
-  address_prefixes     = ["10.121.2.0/24"]
+  subnet_name          = "dev-subnet-1"
+  address_prefixes     = ["10.121.1.0/24"]
   //security_group_id   = module.sg_module.security_group_id
 
   depends_on = [
