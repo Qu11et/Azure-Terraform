@@ -56,4 +56,4 @@ variable "sku" {
 # variable "os_version" {
 #   description = "Version of the OS image"
 #   type        = string
-# }
+# } //// please fix this
