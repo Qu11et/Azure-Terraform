@@ -3,9 +3,6 @@ module "rg_module" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  depends_on = [
-    module.vn_module
-  ]
 }
 
 module "vn_module" {
