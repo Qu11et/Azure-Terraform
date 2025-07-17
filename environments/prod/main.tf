@@ -3,9 +3,6 @@ module "rg_module" {
   resource_group_name = var.resource_group_name
   location            = var.location
 
-  depends_on = [
-    module.vn_module
-  ]
 }
 
 module "vn_module" {
@@ -92,7 +89,7 @@ module "vm_module" {
   offer                = "0001-com-ubuntu-server-jammy"
   sku                  = "22_04-lts"
 
-  depenads_on = [
+  depends_on = [
     module.nic_module
-  ] 
+  ]
 }
