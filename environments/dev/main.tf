@@ -10,6 +10,10 @@ module "vn_module" {
   location             = var.location
   address_space        = ["10.121.0.0/16"]
   virtual_network_name = var.virtual_network_name
+
+  depends_on = [
+    module.rg_module
+  ]
 }
 
 module "subnet_module" {
@@ -19,6 +23,10 @@ module "subnet_module" {
   subnet_name          = "dev-subnet-1"
   address_prefixes     = ["10.121.1.0/24"]
   //security_group_id   = module.sg_module.security_group_id
+
+  depends_on = [
+    module.vn_module
+  ]
 }
 
 module "sg_module" {
@@ -36,6 +44,10 @@ module "sg_module" {
   destination_port_range     = "*"
   source_address_prefix      = "*"
   destination_address_prefix = "*"
+
+  depends_on = [
+    module.subnet_module
+  ]
 }
 
 module "pubip_module" {
@@ -43,6 +55,10 @@ module "pubip_module" {
   resource_group_name = var.resource_group_name
   location            = var.location
   public_ip_name      = "dev-public-ip"
+
+  depends_on = [
+    module.sg_module
+  ]
 }
 
 module "nic_module" {
@@ -52,6 +68,10 @@ module "nic_module" {
   location               = var.location
   subnet_id              = module.subnet_module.subnet_id
   public_ip_id           = module.pubip_module.public_ip_id
+
+  depends_on = [
+    module.pubip_module
+  ]
 }
 
 module "vm_module" {
@@ -67,4 +87,8 @@ module "vm_module" {
   publisher            = "Canonical"
   offer                = "0001-com-ubuntu-server-jammy"
   sku                  = "22_04-lts"
+
+  depends_on = [
+    module.nic_module
+  ]
 }
