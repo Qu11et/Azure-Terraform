@@ -1,7 +1,7 @@
 module "rg_module" {
-  source   = "../../modules/rg_module"
-  resource_group_name     = var.resource_group_name
-  location = var.location
+  source              = "../../modules/rg_module"
+  resource_group_name = var.resource_group_name
+  location            = var.location
 }
 
 module "vn_module" {
@@ -16,7 +16,7 @@ module "subnet_module" {
   source               = "../../modules/subnet_module"
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.virtual_network_name
-  subnet_name          = "dev-subnet-1" 
+  subnet_name          = "dev-subnet-1"
   address_prefixes     = ["10.121.1.0/24"]
   //security_group_id   = module.sg_module.security_group_id
 }
@@ -27,7 +27,7 @@ module "sg_module" {
   location                   = var.location
   subnet_id                  = module.subnet_module.subnet_id
   security_group_name        = "dev-security-group"
-  security_group_rule_name = "yoong-dev-rule-1"
+  security_group_rule_name   = "yoong-dev-rule-1"
   priority                   = 100
   direction                  = "Inbound"
   access                     = "Allow"
@@ -46,12 +46,12 @@ module "pubip_module" {
 }
 
 module "nic_module" {
-  source              = "../../modules/nic_module"
-  network_interface_name                = "dev-nic"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  subnet_id           = module.subnet_module.subnet_id
-  public_ip_id        = module.pubip_module.public_ip_id
+  source                 = "../../modules/nic_module"
+  network_interface_name = "dev-nic"
+  resource_group_name    = var.resource_group_name
+  location               = var.location
+  subnet_id              = module.subnet_module.subnet_id
+  public_ip_id           = module.pubip_module.public_ip_id
 }
 
 module "vm_module" {
